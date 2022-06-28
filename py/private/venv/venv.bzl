@@ -89,6 +89,8 @@ def _make_venv(ctx, name = None, main = None, strip_pth_workspace_root = None):
     # Maybe in the future we can opt out of this?
     pth_lines.add(escape)
 
+    pth_lines.add("{}/{}".format(escape, ctx.workspace_name))
+
     pth_lines.add_all(
         imports_depset,
         **pth_add_all_kwargs
