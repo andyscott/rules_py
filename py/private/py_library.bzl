@@ -4,6 +4,17 @@ load("@bazel_skylib//lib:paths.bzl", "paths")
 load("//py/private:providers.bzl", "PyWheelInfo")
 load("//py/private:py_wheel.bzl", py_wheel = "py_wheel_lib")
 
+def _whl_filegroup_to_wheel_info_aspect_impl(target, ctx):
+    if ctx.workspace_name and target.label.name == "whl" and ctx.rule.kind == "filegroup":
+        return [py_wheel.make_py_wheel_info(ctx, target)]
+    else:
+        return []
+
+_whl_filegroup_to_wheel_info_aspect = aspect(
+    implementation = _whl_filegroup_to_wheel_info_aspect_impl,
+    attr_aspects = ["deps"],
+)
+
 def _make_srcs_depset(ctx):
     return depset(
         order = "postorder",
@@ -110,6 +121,7 @@ _attrs = dict({
     "deps": attr.label_list(
         allow_files = True,
         providers = [[PyInfo], [PyWheelInfo]],
+        aspects = [_whl_filegroup_to_wheel_info_aspect],
     ),
     "data": attr.label_list(
         allow_files = True,
